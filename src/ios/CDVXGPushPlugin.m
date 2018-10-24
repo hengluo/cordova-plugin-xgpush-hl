@@ -103,7 +103,11 @@ static CDVInvokedUrlCommand *currentCommand=nil;
     NSString* account = [command.arguments objectAtIndex:0];
     NSLog(@"[XGPushPlugin] unRegisterPush");
     currentCommand=command;
-    [[XGPushTokenManager defaultTokenManager] unbindWithIdentifer:account type:XGPushTokenBindTypeAccount];
+    if ([account respondsToSelector:@selector(length)] && [account length] > 0) {
+        NSLog(@"[XGPushPlugin] unregister account:%@", account);
+        [[XGPushTokenManager defaultTokenManager] unbindWithIdentifer:account type:XGPushTokenBindTypeAccount];
+    }
+    [[XGPush defaultManager] stopXGNotification];
 }
 
 - (void) getLaunchInfo:(CDVInvokedUrlCommand*)command {

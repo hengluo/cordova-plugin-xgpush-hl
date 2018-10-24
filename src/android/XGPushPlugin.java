@@ -160,11 +160,26 @@ public class XGPushPlugin extends CordovaPlugin {
     }
 
 
-    private void unRegisterPush(final CallbackContext callback) {
+    private void unRegisterPush(final JSONArray data, final CallbackContext callback) {
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
-                XGPushManager.unregisterPush(context);
+                try {
+                    String account = (data != null && data.length() > 0) ? data.getString(0) : null;
+                    XGIOperateCallback reply = new XGPushCallback(callback);
+
+                    if (TextUtils.isEmpty(account)) {
+                        Log.d(TAG, "> unregister public");
+                        XGPushManager.unregisterPush(context);
+                        callback.success();
+                    } else {
+                        Log.d(TAG, "> unregister private:" + account);
+                        XGPushManager.delAccount(context, account, reply);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "unregister error:" + e.toString());
+                    callback.error(e.getMessage());
+                }
             }
         });
     }
